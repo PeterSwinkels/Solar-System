@@ -1,0 +1,12 @@
+Solar System v1.02 help - by: Peter Swinkels, ***2022***
+
+Key(s):		Function:
++/-		Adjust speed.
+Arrows		Adjust the camera's position.
+F1		Program information.
+Home/End	Zoom in/out.
+Page Down/Up	Tilt the ecliptic plane.
+Pause		Pause all movements.
+
+Mouse:		Function:
+Left Button	Adjust the camera's position.
