@@ -38,7 +38,7 @@ Option Base 0
 Option Compare Binary
 Option Explicit
 
-
+DefLng A-Z
 'This procedure initializes this window.
 Private Sub Form_Activate()
 On Error GoTo ErrorTrap

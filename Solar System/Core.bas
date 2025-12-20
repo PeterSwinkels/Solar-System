@@ -3,6 +3,9 @@ Attribute VB_Name = "CoreModule"
 Option Base 0
 Option Compare Binary
 Option Explicit
+Option Private Module
+
+DefLng A-Z
 
 Private Const PI As Double = 3.14159265358979           'Defines the value of PI.
 Private Const DEGREES_PER_RADIAN As Double = 180 / PI   'Defines the number of degrees per radian.
