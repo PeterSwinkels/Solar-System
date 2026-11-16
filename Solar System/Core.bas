@@ -30,7 +30,7 @@ End Type
 'This structure defines the sun.
 Private Type SunStr
    Name As String         'Defines the sun's name.
-   Diameter As Single     'Defines the sun's diameter.
+   Radius As Single       'Defines the sun's radius.
    Color As Long          'Defines the sun's color.
 End Type
 
@@ -68,7 +68,6 @@ ErrorTrap:
    Resume EndRoutine
 End Sub
 
-
 'This procedure draws the specified planets' orbits on the specified window.
 Private Sub DrawOrbits(Window As Form, SolarSystem As SolarSystemStr, OrbitStart As Long, OrbitEnd As Long, OrbitColor As Long)
 On Error GoTo ErrorTrap
@@ -101,6 +100,30 @@ ErrorTrap:
    Resume EndRoutine
 End Sub
 
+'This procedure draws the specified planet on the specified window.
+Private Sub DrawPlanet(Window As Form, Planet As PlanetStr, EraseV As Boolean)
+On Error GoTo ErrorTrap
+Dim x As Long
+Dim y As Long
+
+   With Planet
+      x = (Sin((.Position - 90) / DEGREES_PER_RADIAN) * (.Distance * SolarSystem.ScaleV)) + SolarSystem.x
+      y = (Cos((.Position - 90) / DEGREES_PER_RADIAN) * ((.Distance * SolarSystem.ScaleV) * (SolarSystem.Tilt / 10))) + SolarSystem.y
+      If EraseV Then
+         Window.FillColor = vbBlack
+      Else
+         Window.FillColor = .Color
+      End If
+      Window.Circle (x, y), .Radius * (SolarSystem.ScaleV / 10), vbBlack
+      DisplayText Window, .Name, x, y, TextColor:=vbWhite, EraseV:=EraseV
+   End With
+EndRoutine:
+   Exit Sub
+   
+ErrorTrap:
+   HandleError
+   Resume EndRoutine
+End Sub
 
 'This procedure draws the specified planets on the specified window.
 Private Sub DrawPlanets(Window As Form, SolarSystem As SolarSystemStr, OrbitStart As Long, OrbitEnd As Long, Direction As Long, EraseV As Boolean)
@@ -133,31 +156,6 @@ ErrorTrap:
    Resume EndRoutine
 End Sub
 
-'This procedure draws the specified planet on the specified window.
-Private Sub DrawPlanet(Window As Form, Planet As PlanetStr, EraseV As Boolean)
-On Error GoTo ErrorTrap
-Dim x As Long
-Dim y As Long
-
-   With Planet
-      x = (Sin((.Position - 90) / DEGREES_PER_RADIAN) * (.Distance * SolarSystem.ScaleV)) + SolarSystem.x
-      y = (Cos((.Position - 90) / DEGREES_PER_RADIAN) * ((.Distance * SolarSystem.ScaleV) * (SolarSystem.Tilt / 10))) + SolarSystem.y
-      If EraseV Then
-         Window.FillColor = vbBlack
-      Else
-         Window.FillColor = .Color
-      End If
-      Window.Circle (x, y), .Radius * (SolarSystem.ScaleV / 10), vbBlack
-      DisplayText Window, .Name, x, y, TextColor:=&HFFFFFF, EraseV:=EraseV
-   End With
-EndRoutine:
-   Exit Sub
-   
-ErrorTrap:
-   HandleError
-   Resume EndRoutine
-End Sub
-
 'This procedure draws the solar system on the specified window.
 Public Sub DrawSolarSystem(Window As Form, MoveV As Boolean)
 On Error GoTo ErrorTrap
@@ -171,7 +169,7 @@ On Error GoTo ErrorTrap
    DrawOrbits Window, SolarSystem, OrbitStart:=0, OrbitEnd:=180, OrbitColor:=&H808080
    DrawPlanets Window, SolarSystem, OrbitStart:=0, OrbitEnd:=180, Direction:=1, EraseV:=False
 
-   DrawSun Window, SolarSystem, DiameterScale:=0.001
+   DrawSun Window, SolarSystem, RadiusScale:=0.001
 
    DrawOrbits Window, SolarSystem, OrbitStart:=180, OrbitEnd:=360, OrbitColor:=&H808080
    DrawPlanets Window, SolarSystem, OrbitStart:=180, OrbitEnd:=360, Direction:=-1, EraseV:=False
@@ -183,29 +181,26 @@ ErrorTrap:
    Resume EndRoutine
 End Sub
 
-
-
 'This procedure draws the specified stars on the specified window.
 Private Sub DrawStars(Window As Form, Stars() As StarStr, EraseV As Boolean)
 On Error GoTo ErrorTrap
-Dim ColorV As Long
+Dim Color As Long
 Dim Star As Long
    
    TwinkleStars Stars
       
    If EraseV Then
-      ColorV = vbBlack
+      Color = vbBlack
    Else
-      ColorV = vbWhite
+      Color = vbWhite
    End If
       
-   Window.FillColor = ColorV
+   Window.FillColor = Color
    For Star = LBound(Stars()) To UBound(Stars())
       If Stars(Star).Twinkling Then
-         Window.Circle (Stars(Star).x, Stars(Star).y), 1, ColorV
+         Window.Circle (Stars(Star).x, Stars(Star).y), 1, Color
       Else
-         Window.PSet (Stars(Star).x, Stars(Star).y), ColorV
-         Window.PSet (Stars(Star).x + 1, Stars(Star).y), ColorV
+         Window.Line (Stars(Star).x, Stars(Star).y)-Step(2, 0), Color
       End If
    Next Star
 EndRoutine:
@@ -216,13 +211,12 @@ ErrorTrap:
    Resume EndRoutine
 End Sub
 
-
 'This procedure draws the specified sun on the specified window.
-Private Sub DrawSun(Window As Form, SolarSystem As SolarSystemStr, DiameterScale As Single)
+Private Sub DrawSun(Window As Form, SolarSystem As SolarSystemStr, RadiusScale As Single)
 On Error GoTo ErrorTrap
    With SolarSystem
       Window.FillColor = .Sun.Color
-      Window.Circle (.x, .y), .Sun.Diameter * DiameterScale, vbBlack
+      Window.Circle (.x, .y), .Sun.Radius * RadiusScale, vbBlack
    End With
 EndRoutine:
    Exit Sub
@@ -254,6 +248,7 @@ ErrorTrap:
    HandleError
    Resume EndRoutine
 End Function
+
 'This procedure handles any errors that occur.
 Public Sub HandleError()
 Dim Choice As Integer
@@ -269,15 +264,12 @@ Dim Message As String
    If Choice = vbCancel Then End
 End Sub
 
-
-
-
 'This procedure moves the specified planets.
-Private Sub MovePlanets(SolarSystem As SolarSystemStr)
+Private Sub MovePlanets(ActiveSolarSystem As SolarSystemStr)
 On Error GoTo ErrorTrap
 Dim Planet As Long
 
-   With SolarSystem
+   With ActiveSolarSystem
       For Planet = LBound(.Planets()) To UBound(.Planets())
          .Planets(Planet).Position = NewPosition(.Planets(Planet).Position, .Planets(Planet).Velocity)
       Next Planet
@@ -291,7 +283,7 @@ ErrorTrap:
 End Sub
 
 'This procedure increments or resets the specified position and returns the result.
-Private Function NewPosition(Position As Double, Velocity As Long) As Long
+Private Function NewPosition(Position As Double, Velocity As Long) As Double
 On Error GoTo ErrorTrap
    If Position + Velocity >= 360 Then Position = 0 Else Position = Position + Velocity
 EndRoutine:
@@ -302,7 +294,6 @@ ErrorTrap:
    HandleError
    Resume EndRoutine
 End Function
-
 
 'This procedure loads and returns the solar system's data.
 Private Function LoadSolarSystem(DataFile As String) As SolarSystemStr
@@ -316,7 +307,7 @@ Dim PlanetCount As Long
    FileH = FreeFile()
    Open DataFile For Input Lock Read Write As FileH
       With NewSolarSystem
-         Input #FileH, .Sun.Name, HexadecimalColor, .Sun.Diameter
+         Input #FileH, .Sun.Name, HexadecimalColor, .Sun.Radius
          .Sun.Color = CLng(Val("&H" & HexadecimalColor & "&"))
          
          Input #FileH, PlanetCount
@@ -338,7 +329,6 @@ ErrorTrap:
    HandleError
    Resume EndRoutine
 End Function
-
 
 'This procedure is executed when this program is started.
 Public Sub Main()
@@ -362,7 +352,6 @@ ErrorTrap:
    HandleError
    Resume EndRoutine
 End Sub
-
 
 'This procedure controls the specified stars' twinkling.
 Private Sub TwinkleStars(Stars() As StarStr)

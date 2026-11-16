@@ -1,4 +1,4 @@
-Solar System v1.02 help - by: Peter Swinkels, ***2022***
+Solar System v1.03 help - by: Peter Swinkels, ***2022***
 
 Key(s):		Function:
 +/-		Adjust speed.

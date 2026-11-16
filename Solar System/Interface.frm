@@ -33,13 +33,13 @@ Attribute VB_GlobalNameSpace = False
 Attribute VB_Creatable = False
 Attribute VB_PredeclaredId = True
 Attribute VB_Exposed = False
-'This module contains this program's main interface window.
+'This class contains this program's main interface window.
 Option Base 0
 Option Compare Binary
 Option Explicit
 
 DefLng A-Z
-'This procedure initializes this window.
+'This procedure refreshes this window when it is activated.
 Private Sub Form_Activate()
 On Error GoTo ErrorTrap
    With SolarSystem
@@ -133,19 +133,6 @@ ErrorTrap:
    HandleError
    Resume EndRoutine
 End Sub
-
-'This procedure closes this window.
-Private Sub Form_Unload(Cancel As Integer)
-On Error GoTo ErrorTrap
-   Unload Me
-EndRoutine:
-   Exit Sub
-   
-ErrorTrap:
-   HandleError
-   Resume EndRoutine
-End Sub
-
 
 'This procedure gives the command to draw the solar system at specific intervals.
 Private Sub MotionGenerator_Timer()
